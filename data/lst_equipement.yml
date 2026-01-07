@@ -1,0 +1,92 @@
+ARMES:
+  EPEE_COURBE:
+    label: "Cimeterre"
+    type_attaque: 'contact'
+    type_degat: "tranchant"
+    DM: '1d8'
+    prix: -1
+  JAVELOT:
+    label: "Javelot"
+    type_attaque: 'Distance'
+    type_degat: "perforant"
+    DM: '1d6'
+    prix: 1
+  BATON:
+    label: "Bâton"
+    type_attaque: 'Contact'
+    DM: "1d4"
+    type_degat: "contondant"
+    prix: 0
+  BATON_FERRE:
+    label: "Bâton Ferré"
+    DM: "1d6"
+    type_attaque: 'Contact'
+    type_degat: "contondant"
+    prix: 2
+  EPEE_COURTE:
+    label: "Epée Courte"
+    DM: "1d6"
+    type_attaque: 'Contact'
+    type_degat: "perforant"
+    prix: 5
+  EPEE_DEUX_MAINS:
+    label: "Epée à deux mains"
+    DM: "2d6"
+    type_attaque: 'Contact'
+    type_degat: "tranchant"
+    prix: 10
+  PIQUE:
+    label: "Pique"
+    DM: "1d10"
+    type_attaque: 'Contact'
+    type_degat: "perforant"
+    prix: 5
+  ARB_POING:
+    label: "Arbalète de poing"
+    type_attaque: 'Distance'
+    DM: "1d6"
+    type_degat: "perforant"
+    portee: 10
+    prix: 8
+    obs: "Action de mouvement pour être rechargée"
+  ARC_COURT:
+    label: "Arc Court"
+    type_attaque: 'Distance'
+    DM: "1d6"
+    type_degat: "perforant"
+    portee: 30
+    prix: 4
+    obs: "Arme tenue à 2 mains"
+  COUTEAU:
+    label: "Couteau de Lancer"
+    type_attaque: 'Distance'
+    DM: "1d4"
+    type_degat: "perforant"
+    portee: 10
+    prix: 3
+
+ARMURES:
+  VESTE_TISSUS:  
+    label: "Tissus Matelassé, Fourrures"
+    prix: 2
+    modif:
+      label: DEF
+      val: 2
+  VESTE_CUIR:  
+    label: "Veste en Cuir Simple"
+    prix: 4
+    modif:
+      label: DEF
+      val: 2
+  CUIR_RENFO:  
+    label: "Veste en Cuir Renforcé"
+    prix: 8
+    modif:
+      label: DEF
+      val: 3
+  PETIT_BOUCLIER:  
+    label: "Petit Bouclier"
+    prix: 2
+    modif:
+      label: DEF
+      val: 1

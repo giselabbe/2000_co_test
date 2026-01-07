@@ -1,0 +1,114 @@
+VOLEUR:
+  VOIE_DE_LASSASSIN:
+    DISCRETION:
+      rang: 1
+      label : Discrétion
+      description: |
+        Le voleur ajoute son rang + 2 à tous les tests de discrétion, de déguisement ou pour cacher une arme sur lui. 
+        Il apprend le langage silencieux à base de signe des voleurs et enfin il obtient un dé bonus en attaque lorsqu'il attaque un adversaire surpris.
+    ATTAQUE_SOURNOISE:
+      rang: 2
+      label : Attaque Sournoise
+      description: |
+        Une fois par round, quand il attaque un adversaire surpris ou qui lui tourne le dos avec une arme légère, le voleur inflige +2d4° DM supplémentaires. 
+    
+BARBARE:
+  VOIE_DE_LA_RAGE:
+    CRI_DE_GUERRE:
+      rang: 1
+      label: Cri de Guerre
+      description: |
+        Une fois par combat, le barbare pousse un hurlement qui effraie ses adversaires dans un rayon de 10 m. 
+        Les adversaires dont la FOR est inférieure à celle du barbare subissent un démalus à leurs tests d'attaque au contact durant leur prochain tour. 
+        De plus, le barbare est sans peur, il ajoute son rang + 2 à tous les tests de VOL destinés à résister à la peur.
+    DEFIER_LA_MORT:
+      rang: 2
+      label : Défier la mort
+      description: |
+        Une fois par combat, lorsque le barbare subit des DM d'une attaque qui devrait l'amener à 0 PV, il peut réaliser un test de CON difficulté 10.
+        En cas de réussite, il conserve 1 PV. S'il est enragé, la réussite est automatique.
+  VOIE_DE_LA_BRUTE:
+    ARGUMENT_DE_TAILLE:
+      rang: 1
+      label : Argument de Taille
+      description: |
+        Le barbare ajoute sa FOR à son maximum de PV ainsi qu'à ses tests de CHA et à ceux de ses alliés au contact pour les tests de négociation, de persuasion ou d'intimidation.
+      modif:
+        PV: FOR
+    TOUR_DE_FORCE:
+      rang: 2
+      label : Tour de Force
+      description : |
+        Le barbare peut temporairement décupler ses ressources physiques pour faire usage d'une force prodigieuse.
+        Il obtient un bonus de +10 sur un test de FOR, mais cela lui coûte 1d4 PV. 
+        Enfin, le barbare peut désormais porter une chemise de mailles et utiliser toutes les capacités des voies de barbare auparavant autorisées avec une armure de cuir renforcé.
+  VOIE_DU_POURFENDEUR:
+    REFLEXES_ECLAIR:
+        rang: 1
+        label : Réflexes Eclair
+        description: |
+          Le barbare ajoute son rang + 2 à tous les tests d'AGI destinés à esquiver (Explosion de feu, souffle, pièges, etc.).
+        modif:
+          INIT: 3
+          DEF: 1
+
+
+
+ENSORCELEUR:
+  VOIE_DE_LAIR:
+    MURMURE_DANS_LE_VENT:
+      label: Murmure dans le vent
+      rang: 1
+      is_magic: 1
+      action: G
+      description: |
+        Chuchote un message à 100xCHA mètres vers une cible connue ou vue.
+      modif: 
+        INIT: 1
+        DEF : 1
+
+    SOUS_TENSION:
+      label: Sous Tension
+      rang: 2
+      is_magic: 1
+      action: M
+      description: |
+        L'ensorceleur se charge d'énergie électrique pendant CHA minutes. Toute créature qui le blesse par une attaque de contact reçoit 1D4* DM.
+        Il peut utiliser une attaque magique à 10m infligeant [1+d4* + CHA] DM.
+      attaque: 
+        portee: 10
+        DM: 1d4* + CHA
+
+    TELEKINESIE:
+      label: Télékinésie
+      rang: 3
+      is_magic: 1
+      action: A
+      description: |
+        L'ensorceleur peut déplacer dans les airs un objet inerte ou une cible volontaire (par ex lui même), dont le poids n'excède pas 50 kg par rang,
+        à une portée de 20m pendant CHA minutes. Cet objet peut tomber sur une cible surprise"
+      attaque: 
+        portee: 0
+        DM: 1d6 par tranche de 50 kg
+
+    FOUDRE:
+      label: Foudre
+      rang: 4
+      is_magic: 1
+      action: A
+      description: |
+        L'ensorceleur produit un éclair sur une ligne de 10m. Toutes les créatures sur la trajectoire subissent [4d4* + CHA] DM 
+        ou seulement la moitié si elles réussissent AGI [10+CHA]. sauvegarde CHA + [vérifier]
+      attaque: 
+        portee: 10
+        DM: 4d4* + CHA
+        
+    FORME_ETHEREE:
+      label: Forme Ethérée
+      rang: 5
+      is_magic : 1
+      action: L
+      description: |
+        L'ensorceleur et tout son équipement deviennent translucides et intangibles pendant CHA minutes. 
+        Sous cette forme il peut passer à travers murs et obstacles et ne peut pas subir de DM, ni en infliger, ni lancer de sorts.
+        Il est stoppé par les barrières magiques et ne peut pas passer à travers les êtres vivants.

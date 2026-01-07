@@ -1,0 +1,12 @@
+HUMAIN:
+  DIVERSITE:
+    rang: 1
+    label : Diversité
+    description: "Un humain obtient un bonus de +3 aux tests de deux domaines associés à son origine géographique ou sociale. De plus, il gagne 1 PC supplémentaire."
+    modif: 
+      PC: 1
+  INSTINCT_DE_SURVIE:
+    rang: 2
+    label : Instinct de Survie
+    description: "Une fois par combat, lorsqu'une attaque devrait amener l'humain à 0 PV, les DM qu'lle inflige sont divisés par 2 (minimum 1). 
+    Après avoir bénéficié de cette capacité, l'humain gagne pour le reste du combat un bonus de +2 en DEF."

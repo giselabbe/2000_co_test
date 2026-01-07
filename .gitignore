@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+
+#virtualenv
+.venv
+venv/
+
+# do not version the temp folder if it exists
+/temp

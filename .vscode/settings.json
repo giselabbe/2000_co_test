@@ -1,0 +1,33 @@
+{
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "python.linting.flake8Enabled": true,
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "72"
+    ],
+    "python.linting.flake8Args": [
+        "--extend-ignore=E203,E501"
+    ],
+    "jupyter.notebookFileRoot": ".",
+    "terminal.integrated.profiles.linux": {
+        "tmux": {
+            "path": "/usr/bin/tmux",
+            "args": [
+                "new-session",
+                "-A",
+                "-s",
+                "vscode-${workspaceFolderBasename}"
+            ],
+        },
+    },
+    "terminal.integrated.defaultProfile.linux": "tmux",
+    "remote.SSH.defaultForwardedPorts": [
+        {
+            "localPort": 9002,
+            "remotePort": 9002,
+            "name": "SA"
+        }
+    ],
+    "git-graph.repository.fetchAndPrune": true,
+}

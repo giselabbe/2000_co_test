@@ -1,0 +1,112 @@
+nom: Lhagva
+peuple: Humain
+famille: Combattant
+profil: Barbare
+niveau: 1
+caract:
+  AGI: 1
+  CONST: 2
+  FOR: 3
+  PER: 1
+  CHAR: -1
+  INT: 0
+  VOL: 1
+equipement:
+  armes:
+    EPEE_COURBE:
+      ref: EPEE_COURBE
+      label: Cimeterre
+      DM: 1d8
+      type_attaque: contact
+      type_degat: tranchant
+      prix: -1
+      portee: 0
+      obs: ''
+  armures:
+    VESTE_CUIR:
+      ref: VESTE_CUIR
+      label: Veste en Cuir Simple
+      prix: 4
+      modif:
+        label: DEF
+        val: 2
+      obs: ''
+  sac: {}
+voies: {}
+capacites:
+  list_of_skills:
+    HUMAIN:
+      ref: HUMAIN
+      label: Diversité
+      rang: 1
+      description: Un humain obtient un bonus de +3 aux tests de deux domaines associés
+        à son origine géographique ou sociale. De plus, il gagne 1 PC supplémentaire.
+      modif:
+        PC: 1
+      magie: 0
+      action: null
+      attaque: null
+    VOIE_DE_LA_RAGE:
+      ref: VOIE_DE_LA_RAGE
+      label: Cri de Guerre
+      rang: 1
+      description: "Une fois par combat, le barbare pousse un hurlement qui effraie\
+        \ ses adversaires dans un rayon de 10 m. \nLes adversaires dont la FOR est\
+        \ inférieure à celle du barbare subissent un démalus à leurs tests d'attaque\
+        \ au contact durant leur prochain tour. \nDe plus, le barbare est sans peur,\
+        \ il ajoute son rang + 2 à tous les tests de VOL destinés à résister à la\
+        \ peur.\n"
+      modif: null
+      magie: 0
+      action: null
+      attaque: null
+    VOIE_DU_POURFENDEUR:
+      ref: VOIE_DU_POURFENDEUR
+      label: Réflexes Eclair
+      rang: 1
+      description: 'Le barbare ajoute son rang + 2 à tous les tests d''AGI destinés
+        à esquiver (Explosion de feu, souffle, pièges, etc.).
+
+        '
+      modif:
+        INIT: 3
+        DEF: 1
+      magie: 0
+      action: null
+      attaque: null
+spells:
+  list_of_skills: {}
+ressources:
+  PV: 12
+  DR:
+  - 4
+  - 10
+  PM: 1
+  PC: 2
+  INIT: 11
+  DEF: 11
+  ATK: 3
+  ATD: 2
+  ATM: 2
+mod:
+  liste_mods:
+  - label: DEF
+    val: 2
+    source: Veste en Cuir Simple
+    comment: ''
+  - label: PC
+    val: 1
+    source: HUMAIN
+    comment: ''
+  - label: INIT
+    val: 3
+    source: VOIE_DU_POURFENDEUR
+    comment: ''
+  - label: DEF
+    val: 1
+    source: VOIE_DU_POURFENDEUR
+    comment: ''
+rollup_mod:
+  DEF: 3
+  PC: 1
+  INIT: 3
