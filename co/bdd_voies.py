@@ -197,16 +197,16 @@ def upsert_all_capacites_peuple_from_yaml(conn, dict_capacites):
         upsert_capacite_peuple(conn, rows)
 
 
-def get_cls_capacity_details(bdd_path, voie_id, voie_rang):
+def get_cls_capacity_details(bdd_path, voie_id, rang):
     sql = f"""
     SELECT label, description, modif, is_magic, action, attaque 
     FROM capacite_classe 
-    WHERE voie_id = '{voie_id}' AND rang = {voie_rang};
+    WHERE voie_id = '{voie_id}' AND rang = {rang};
     """
     conn = sqlite3.connect(bdd_path)
     cursor = conn.cursor()
     cursor.execute(sql)
-    (label, description, modif, is_magic, action, attaque) = cursor.fetchone()
+    label, description, modif, is_magic, action, attaque = cursor.fetchone()
 
     return (label, description, modif, is_magic, action, attaque)
 
@@ -220,7 +220,7 @@ def get_ppl_capacity_details(bdd_path, peuple_id, voie_rang):
     conn = sqlite3.connect(bdd_path)
     cursor = conn.cursor()
     cursor.execute(sql)
-    (label, description, modif, is_magic, action, attaque) = cursor.fetchone()
+    label, description, modif, is_magic, action, attaque = cursor.fetchone()
 
     return (label, description, modif, is_magic, action, attaque)
 

@@ -28,7 +28,7 @@ equipement:
       label: Veste en Cuir Simple
       prix: 4
       modif:
-        label: DEF
+        caract: DEF
         val: 2
       obs: ''
   sac: {}
@@ -88,24 +88,20 @@ ressources:
   ATK: 3
   ATD: 2
   ATM: 2
-mod:
+modificateurs:
   liste_mods:
-  - label: DEF
+  - caract: DEF
     val: 2
     source: Veste en Cuir Simple
-    comment: ''
-  - label: PC
+  - caract: PC
     val: 1
-    source: HUMAIN
-    comment: ''
-  - label: INIT
+    source: HUMAIN ; Diversité ; 1
+  - caract: INIT
     val: 3
-    source: VOIE_DU_POURFENDEUR
-    comment: ''
-  - label: DEF
+    source: VOIE_DU_POURFENDEUR ; Réflexes Eclair ; 1
+  - caract: DEF
     val: 1
-    source: VOIE_DU_POURFENDEUR
-    comment: ''
+    source: VOIE_DU_POURFENDEUR ; Réflexes Eclair ; 1
 rollup_mod:
   DEF: 3
   PC: 1

@@ -18,7 +18,7 @@ BARBARE:
       rang: 1
       label: Cri de Guerre
       description: |
-        Une fois par combat, le barbare pousse un hurlement qui effraie ses adversaires dans un rayon de 10 m. 
+        Une fois par combat, le barbare pousse un hurlement qui effraie ses adversaires dans un rayon de 10 m.
         Les adversaires dont la FOR est inférieure à celle du barbare subissent un démalus à leurs tests d'attaque au contact durant leur prochain tour. 
         De plus, le barbare est sans peur, il ajoute son rang + 2 à tous les tests de VOL destinés à résister à la peur.
     DEFIER_LA_MORT:

@@ -70,23 +70,23 @@ ARMURES:
     label: "Tissus Matelassé, Fourrures"
     prix: 2
     modif:
-      label: DEF
+      caract: DEF
       val: 2
   VESTE_CUIR:  
     label: "Veste en Cuir Simple"
     prix: 4
     modif:
-      label: DEF
+      caract: DEF
       val: 2
   CUIR_RENFO:  
     label: "Veste en Cuir Renforcé"
     prix: 8
     modif:
-      label: DEF
+      caract: DEF
       val: 3
   PETIT_BOUCLIER:  
     label: "Petit Bouclier"
     prix: 2
     modif:
-      label: DEF
+      caract: DEF
       val: 1
