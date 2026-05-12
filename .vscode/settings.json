@@ -1,13 +1,16 @@
 {
     "editor.formatOnSave": true,
-    "python.formatting.provider": "black",
-    "python.linting.flake8Enabled": true,
-    "python.formatting.blackArgs": [
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "black-formatter.args": [
         "--line-length",
         "72"
     ],
-    "python.linting.flake8Args": [
-        "--extend-ignore=E203,E501"
+    "flake8.enabled": true,
+    "flake8.args": [
+        "--max-line-length=90",
+        "--extend-ignore=E203",
     ],
     "jupyter.notebookFileRoot": ".",
     "terminal.integrated.profiles.linux": {
@@ -18,16 +21,21 @@
                 "-A",
                 "-s",
                 "vscode-${workspaceFolderBasename}"
-            ],
-        },
+            ]
+        }
     },
     "terminal.integrated.defaultProfile.linux": "tmux",
-    "remote.SSH.defaultForwardedPorts": [
-        {
-            "localPort": 9002,
-            "remotePort": 9002,
-            "name": "SA"
-        }
-    ],
     "git-graph.repository.fetchAndPrune": true,
+    "python.testing.pytestArgs": [
+        "test"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "*test.py"
+    ]
 }

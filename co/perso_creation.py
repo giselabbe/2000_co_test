@@ -3,7 +3,13 @@ from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, List, Tuple
 import json
 import yaml
-from co.perso_data import Peuple, Profil, Famille, DR_PAR_FAMILLE, PV_PAR_FAMILLE
+from co.perso_data import (
+    Peuple,
+    Profil,
+    Famille,
+    DR_PAR_FAMILLE,
+    PV_PAR_FAMILLE,
+)
 from co import bdd_voies as bdd
 
 
@@ -25,19 +31,19 @@ class Carac:
     def to_dict(self) -> Dict[str, int]:
         return asdict(self)
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]) -> Carac:
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> Carac:
         """
         Reconstruit un jeu Carac depuis un dict.
         """
-        return Modificateur(
-            AGI=d["AGI"],
-            CONST=d["CONST"],
-            FOR=d["FOR"],
-            PER=d["PER"],
-            CHAR=d["CHAR"],
-            INT=d["INT"],
-            VOL=d["VOL"],
+        return cls(
+            AGI=d.get("AGI", 0),
+            CONST=d.get("CONST", 0),
+            FOR=d.get("FOR", 0),
+            PER=d.get("PER", 0),
+            CHAR=d.get("CHAR", 0),
+            INT=d.get("INT", 0),
+            VOL=d.get("VOL", 0),
         )
 
     def __str__(self) -> str:
@@ -47,8 +53,8 @@ class Carac:
 @dataclass
 class Ressource:
     """
-    les ressources de base (grandeurs recalculées à partir des caract,
-     équipement, etc)
+    Les ressources de base (grandeurs recalculées à partir des
+    caractéristiques, de l'équipement, etc.).
     """
 
     PV: int = 0
@@ -64,30 +70,36 @@ class Ressource:
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]) -> Carac:
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Ressource":
         """
-        Reconstruit un jeu Carac depuis un dict.
+        Reconstruit un objet Ressource depuis un dictionnaire.
         """
-        return Modificateur(
-            PV=d["PV"],
-            DR=d["DR"],
-            PM=d["PM"],
-            PC=d["PC"],
-            INIT=d["INIT"],
-            DEF=d["DEF"],
-            ATK=d["ATK"],
-            ATM=d["ATM"],
-            ATD=d["ATD"],
+        return cls(
+            PV=d.get("PV", 0),
+            DR=d.get("DR", (0, 0)),
+            PM=d.get("PM", 0),
+            PC=d.get("PC", 0),
+            INIT=d.get("INIT", 0),
+            DEF=d.get("DEF", 0),
+            ATK=d.get("ATK", 0),
+            ATM=d.get("ATM", 0),
+            ATD=d.get("ATD", 0),
         )
 
     def __str__(self) -> str:
         return str_from_dataclass(self)
 
-    def calculer_ressources(self, p: Personnage):
+    @classmethod
+    def from_personnage(cls, p: Personnage) -> Ressource:
+        r = cls()
+        r._calculer_ressources(p)
+        return r
+
+    def _calculer_ressources(self, p: Personnage) -> None:
         """
-        permet de calculer les ressources
-        à partir des caractéristiques et du profil de joueur
+        Calcule les ressources à partir des caractéristiques
+        et du profil du personnage.
         """
         self._calc_def(p)
         self._calc_init(p)
@@ -97,9 +109,9 @@ class Ressource:
         self._calc_pc(p)
         self._calcule_attaque(p)
 
-    def _calc_pv(self, p: Personnage, PV_PAR_FAMILLE):
+    def _calc_pv(self, p: Personnage, PV_PAR_FAMILLE) -> None:
         """
-        calcule les points de vigueur
+        Calcule les points de vigueur.
         """
         base = PV_PAR_FAMILLE[p.famille]
         niveau = p.niveau
@@ -108,67 +120,69 @@ class Ressource:
 
         self.PV = pv_total
 
-    def _calc_dr(self, p: Personnage, DR_PAR_FAMILLE):
+    def _calc_dr(self, p: Personnage, DR_PAR_FAMILLE) -> None:
         """
-        calcule le nombre de DR et leur valeur max (nbre, valeur max)
+        Calcule le nombre de DR et leur valeur max (nombre, valeur max).
         """
         valeur_max = DR_PAR_FAMILLE[p.famille]
         const = p.caract.CONST
         nombre = 2 + const
 
         if p.famille == Famille.MYSTIQUE:
-            nombre = nombre + 1
+            nombre += 1
 
         nombre = max(nombre, 0)
 
         self.DR = (nombre, valeur_max)
 
-    def _calc_pc(self, p: Personnage):
+    def _calc_pc(self, p: Personnage) -> None:
         """
-        calcule les points de chance
+        Calcule les points de chance.
         """
         char = p.caract.CHAR
         nombre = 2 + char
 
         if p.famille == Famille.AVENTURIER:
-            nombre = nombre + 1
+            nombre += 1
 
         if p.peuple == Peuple.HUMAIN:
-            nombre = nombre + 1
+            nombre += 1
 
         self.PC = nombre
 
-    def _calc_pm(self, p: Personnage):
+    def _calc_pm(self, p: Personnage) -> None:
         """
-        calcule les points de mana"""
-
+        Calcule les points de mana.
+        """
         vol = p.caract.VOL
         self.PM = vol
 
-    def _calc_init(self, p: Personnage):
+    def _calc_init(self, p: Personnage) -> None:
         """
-        calcule initiative
+        Calcule l'initiative.
         """
         per = p.caract.PER
         self.INIT = per + 10
 
-    def _calc_def(self, p: Personnage) -> int:
+    def _calc_def(self, p: Personnage) -> None:
         """
-        calcule défense
+        Calcule la défense.
         """
         agi = p.caract.AGI
         self.DEF = agi + 10
 
-    def _calcule_attaque(self, p: Personnage):
+    def _calcule_attaque(self, p: Personnage) -> None:
         """
-        calcule (attaque contact, attaque à distance, attaque magique)
+        Calcule attaque au contact, à distance et magique.
         """
         niveau = p.niveau
         const = p.caract.CONST
         agi = p.caract.AGI
         vol = p.caract.VOL
 
-        self.ATK, self.ATD, self.ATM = (niveau + const, niveau + agi, niveau + vol)
+        self.ATK = niveau + const
+        self.ATD = niveau + agi
+        self.ATM = niveau + vol
 
 
 @dataclass
@@ -383,16 +397,25 @@ class Equipement:
     def to_dict(self) -> Dict[str, Any]:
         """Sérialise l'équipement en dict JSON-safe."""
         return {
-            "armes": {k: v.to_dict() for k, v in (self.armes or {}).items()},
-            "armures": {k: v.to_dict() for k, v in (self.armures or {}).items()},
+            "armes": {
+                k: v.to_dict() for k, v in (self.armes or {}).items()
+            },
+            "armures": {
+                k: v.to_dict() for k, v in (self.armures or {}).items()
+            },
             "sac": self.sac or {},
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Equipement":
         """Désérialise depuis un dict vers Equipement."""
-        armes = {k: Arme.from_dict(v) for k, v in d.get("armes", {}).items()}
-        armures = {k: Armure.from_dict(v) for k, v in d.get("armures", {}).items()}
+        armes = {
+            k: Arme.from_dict(v) for k, v in d.get("armes", {}).items()
+        }
+        armures = {
+            k: Armure.from_dict(v)
+            for k, v in d.get("armures", {}).items()
+        }
         sac = d.get("sac", {})
         return Equipement(armes=armes, armures=armures, sac=sac)
 
@@ -422,14 +445,18 @@ class Capacites:
         """Sérialise le conteneur vers un dict JSON-safe."""
         return {
             "list_of_skills": {
-                k: v.to_dict() for k, v in (self.list_of_skills or {}).items()
+                k: v.to_dict()
+                for k, v in (self.list_of_skills or {}).items()
             }
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Capacites":
         """Reconstruit le conteneur depuis un dict."""
-        los = {k: Capacite.from_dict(v) for k, v in d.get("list_of_skills", {}).items()}
+        los = {
+            k: Capacite.from_dict(v)
+            for k, v in d.get("list_of_skills", {}).items()
+        }
         return Capacites(list_of_skills=los)
 
 
@@ -447,13 +474,18 @@ class Modificateurs:
 
     def to_dict(self) -> Dict[str, Any]:
         """Sérialise le conteneur vers un dict JSON-safe."""
-        return {"liste_mods": [m.to_dict() for m in (self.liste_mods or [])]}
+        return {
+            "liste_mods": [m.to_dict() for m in (self.liste_mods or [])]
+        }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Modificateurs":
         """Reconstruit le conteneur depuis un dict."""
         return Modificateurs(
-            liste_mods=[Modificateur.from_dict(m) for m in d.get("liste_mods", [])]
+            liste_mods=[
+                Modificateur.from_dict(m)
+                for m in d.get("liste_mods", [])
+            ]
         )
 
 
@@ -468,7 +500,9 @@ class Personnage:
     - voies: résumé des voies choisies (pour affichage)
     - capacites : liste des capacités apprises par les voies
     - spells : container spécialisé des capacités magiques
-    - modificateurs : containter de tous les modificateurs conférés par les armes, voies, etc
+    - modificateurs :
+        containter
+        de tous les modificateurs conférés par les armes, voies, etc
     - rollup_mod : aggrégation de mod sous forme de dict.
 
     Le calcul des ressources etc, se fait actuellement à l'initialisation du perso.
@@ -492,7 +526,7 @@ class Personnage:
     def __post_init__(self):
         """calcule les ressources"""
         # TODO : penser à recalculer les ressources si montée de niveau
-        self.ressources.calculer_ressources(self)
+        self.ressources = Ressource.from_personnage(self)
         if len(self.modificateurs.liste_mods) > 0:
             self.rollup_mod = self.compute_rollup_modif()
 
@@ -512,7 +546,9 @@ class Personnage:
         self.equipement.equiper_armure(armure)
         # TODO : vérifier si on n'ajoute pas plusieurs fois le modif de DEF
 
-        modif = Modificateur.from_dict(armure.modif, external_src=armure.label)
+        modif = Modificateur.from_dict(
+            armure.modif, external_src=armure.label
+        )
         self.modificateurs.add(modif)
 
     def ajouter_capacite(self, skill: Capacite):
@@ -526,11 +562,14 @@ class Personnage:
                 self.ressources.PM = self.ressources.PM + 1
 
         if skill.modif is not None:
-            # certaines valeurs de modifs se basent sur une caract, cette étape permet de le calculer
+            # certaines valeurs de modifs se basent sur une caract
+            # cette étape permet de le calculer
             dict_modif = self._update_modif_variable(skill.modif)
 
             for k, v in dict_modif.items():
-                source = " ; ".join([skill.ref, skill.label, str(skill.rang)])
+                source = " ; ".join(
+                    [skill.ref, skill.label, str(skill.rang)]
+                )
                 modif = Modificateur(caract=k, val=v, source=source)
                 self.modificateurs.add(modif)
 
@@ -566,7 +605,15 @@ class Personnage:
         """
         md = modif_variable
         for k, v in md.items():
-            if v in ["AGI", "CONST", "FOR", "PER", "CHAR", "INT", "VOL"]:
+            if v in [
+                "AGI",
+                "CONST",
+                "FOR",
+                "PER",
+                "CHAR",
+                "INT",
+                "VOL",
+            ]:
                 v_updated = getattr(self.caract, v)
                 md[k] = v_updated
         return md
@@ -580,11 +627,13 @@ class Personnage:
         exemple :
         {"VOIE_DE_L_AIR": 1, "VOIE_DU_BERSERK": 1}
         """
-        # TODO : pour le moment ne fonctionne que pour les capacités de classe, pas de peuple
+        # TODO : pour le moment ne fonctionne que pour les capacités de classe
         self.voies = dict(dict_voies)
         for voie_id, voie_rang in dict_voies.items():
             label, description, modif, is_magic, action, attaque = (
-                bdd.get_cls_capacity_details(bd_path, voie_id, voie_rang)
+                bdd.get_cls_capacity_details(
+                    bd_path, voie_id, voie_rang
+                )
             )
             modif_dict = json.loads(modif)
             skill = Capacite(
@@ -661,10 +710,12 @@ def ppl_skill_from_bdd(bdd_path, peuple_id: str, voie_rang: int):
     """
     # TODO : ajouter msg si pas trouvé
 
-    label, description, modif, is_magic, action, attaque = bdd.get_ppl_capacity_details(
-        bdd_path, peuple_id, voie_rang
+    label, description, modif, is_magic, action, attaque = (
+        bdd.get_ppl_capacity_details(bdd_path, peuple_id, voie_rang)
     )
-    modif_dict = json.loads(modif)  # pour transormer le résultat de la requete en dict
+    modif_dict = json.loads(
+        modif
+    )  # pour transormer le résultat de la requete en dict
     if len(modif_dict) > 0:
         caract, valeur = next(iter(modif_dict.items()))
 
@@ -694,8 +745,8 @@ def classe_skill_from_bdd(bdd_path, voie_id, voie_rang):
     """
     # TODO : ajouter msg si pas trouvé
 
-    label, description, modif, is_magic, action, attaque = bdd.get_cls_capacity_details(
-        bdd_path, voie_id, voie_rang
+    label, description, modif, is_magic, action, attaque = (
+        bdd.get_cls_capacity_details(bdd_path, voie_id, voie_rang)
     )
     if modif is not None:
         modif = json.loads(modif)
@@ -730,7 +781,9 @@ def load_materiel(path: str, sub_set: str = "ARMES") -> Dict[str, Any]:
         data = yaml.safe_load(f) or {}
     sections = {"ARMES": Arme, "ARMURES": Armure}
     if sub_set not in sections:
-        raise ValueError(f"Section inconnue '{sub_set}'. Attendu: {list(sections)}")
+        raise ValueError(
+            f"Section inconnue '{sub_set}'. Attendu: {list(sections)}"
+        )
     section_data = section_data = data.get(sub_set, {})
     cls_ = sections[sub_set]
     out: Dict[str, Any] = {}

@@ -60,7 +60,11 @@ PROFILS_PAR_FAMILLE: Dict[Famille, Tuple[Profil, ...]] = {
         Profil.RODEUR,
         Profil.VOLEUR,
     ),
-    Famille.COMBATTANT: (Profil.BARBARE, Profil.CHEVALIER, Profil.GUERRIER),
+    Famille.COMBATTANT: (
+        Profil.BARBARE,
+        Profil.CHEVALIER,
+        Profil.GUERRIER,
+    ),
     Famille.MAGE: (
         Profil.ENSORCELEUR,
         Profil.FORGESORT,

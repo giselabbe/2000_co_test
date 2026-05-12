@@ -12,7 +12,9 @@ reload(perso)
 
 bdd_path = bdd.DB_PATH
 ARMES = perso.load_materiel("data/lst_equipement.yml", sub_set="ARMES")
-ARMURES = perso.load_materiel("data/lst_equipement.yml", sub_set="ARMURES")
+ARMURES = perso.load_materiel(
+    "data/lst_equipement.yml", sub_set="ARMURES"
+)
 
 
 lhagva = perso.Personnage(
@@ -21,7 +23,9 @@ lhagva = perso.Personnage(
     famille=perso.Famille.COMBATTANT,
     profil=perso.Profil.BARBARE,
     niveau=1,
-    caract=perso.Carac(AGI=1, CONST=2, FOR=3, PER=1, CHAR=-1, INT=0, VOL=1),
+    caract=perso.Carac(
+        AGI=1, CONST=2, FOR=3, PER=1, CHAR=-1, INT=0, VOL=1
+    ),
 )
 
 reload(perso)
@@ -31,9 +35,15 @@ lh_armure = ARMURES["VESTE_CUIR"]
 lhagva.ajouter_arme(lh_arme)
 lhagva.ajouter_armure(lh_armure)
 
-sk1 = perso.ppl_skill_from_bdd(bdd_path, lhagva.peuple.name, voie_rang=1)
-sk2 = perso.classe_skill_from_bdd(bdd_path, "VOIE_DE_LA_RAGE", voie_rang=1)
-sk3 = perso.classe_skill_from_bdd(bdd_path, "VOIE_DU_POURFENDEUR", voie_rang=1)
+sk1 = perso.ppl_skill_from_bdd(
+    bdd_path, lhagva.peuple.name, voie_rang=1
+)
+sk2 = perso.classe_skill_from_bdd(
+    bdd_path, "VOIE_DE_LA_RAGE", voie_rang=1
+)
+sk3 = perso.classe_skill_from_bdd(
+    bdd_path, "VOIE_DU_POURFENDEUR", voie_rang=1
+)
 
 lhagva.ajouter_capacite(sk1)
 lhagva.ajouter_capacite(sk2)

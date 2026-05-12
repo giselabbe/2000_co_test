@@ -10,3 +10,4 @@ HUMAIN:
     label : Instinct de Survie
     description: "Une fois par combat, lorsqu'une attaque devrait amener l'humain à 0 PV, les DM qu'lle inflige sont divisés par 2 (minimum 1). 
     Après avoir bénéficié de cette capacité, l'humain gagne pour le reste du combat un bonus de +2 en DEF."
+

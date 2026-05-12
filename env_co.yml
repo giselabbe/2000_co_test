@@ -1,16 +1,19 @@
 name: co_test
 channels:
-  - nodefaults
   - conda-forge
+  - nodefaults
 dependencies:
   - python=3.10
   - streamlit
   ####for dev
   - black #for formating
   - flake8 #for linting
+  - pytest
   ###For scientific need
   - pip
   - pip:
     - lazydocs
     - pypdf 
     - reportlab
+    - docxtpl
+    - pillow
