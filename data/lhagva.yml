@@ -30,24 +30,28 @@ equipement:
       modif:
         caract: DEF
         val: 2
+        source: ''
       obs: ''
   sac: {}
 voies: {}
 capacites:
   list_of_skills:
-    HUMAIN:
-      ref: HUMAIN
+    HUMAIN_1:
+      ref: HUMAIN_1
       label: Diversité
       rang: 1
       description: Un humain obtient un bonus de +3 aux tests de deux domaines associés
         à son origine géographique ou sociale. De plus, il gagne 1 PC supplémentaire.
-      modif:
-        PC: 1
-      magie: 0
-      action: null
-      attaque: null
-    VOIE_DE_LA_RAGE:
-      ref: VOIE_DE_LA_RAGE
+      modifs:
+        liste_mods:
+        - caract: PC
+          val: 1
+          source: PEUPLE:HUMAIN:1
+      magie: false
+      action: ''
+      attaque: ''
+    VOIE_DE_LA_RAGE_1:
+      ref: VOIE_DE_LA_RAGE_1
       label: Cri de Guerre
       rang: 1
       description: "Une fois par combat, le barbare pousse un hurlement qui effraie\
@@ -56,24 +60,30 @@ capacites:
         \ au contact durant leur prochain tour. \nDe plus, le barbare est sans peur,\
         \ il ajoute son rang + 2 à tous les tests de VOL destinés à résister à la\
         \ peur.\n"
-      modif: null
-      magie: 0
-      action: null
-      attaque: null
-    VOIE_DU_POURFENDEUR:
-      ref: VOIE_DU_POURFENDEUR
+      modifs:
+        liste_mods: []
+      magie: false
+      action: ''
+      attaque: ''
+    VOIE_DU_POURFENDEUR_1:
+      ref: VOIE_DU_POURFENDEUR_1
       label: Réflexes Eclair
       rang: 1
       description: 'Le barbare ajoute son rang + 2 à tous les tests d''AGI destinés
         à esquiver (Explosion de feu, souffle, pièges, etc.).
 
         '
-      modif:
-        INIT: 3
-        DEF: 1
-      magie: 0
-      action: null
-      attaque: null
+      modifs:
+        liste_mods:
+        - caract: INIT
+          val: 3
+          source: VOIE:VOIE_DU_POURFENDEUR:1
+        - caract: DEF
+          val: 1
+          source: VOIE:VOIE_DU_POURFENDEUR:1
+      magie: false
+      action: ''
+      attaque: ''
 spells:
   list_of_skills: {}
 ressources:
@@ -92,17 +102,13 @@ modificateurs:
   liste_mods:
   - caract: DEF
     val: 2
-    source: Veste en Cuir Simple
+    source: ARMURE:VESTE_CUIR
   - caract: PC
     val: 1
-    source: HUMAIN ; Diversité ; 1
-  - caract: INIT
-    val: 3
-    source: VOIE_DU_POURFENDEUR ; Réflexes Eclair ; 1
+    source: HUMAIN_1 ; Diversité ; 1
   - caract: DEF
     val: 1
-    source: VOIE_DU_POURFENDEUR ; Réflexes Eclair ; 1
+    source: VOIE_DU_POURFENDEUR_1 ; Réflexes Eclair ; 1
 rollup_mod:
   DEF: 3
   PC: 1
-  INIT: 3

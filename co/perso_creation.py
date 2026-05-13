@@ -196,7 +196,7 @@ class Modificateur:
     """
 
     caract: str  # ex: "DEF"
-    val: int  # +3,
+    val: int | str  # +3,
     source: str = ""  # ex: "Armure de cuir", "Buff: Peau de pierre"
 
     def to_dict(self) -> Dict[str, Any]:
@@ -211,16 +211,10 @@ class Modificateur:
 
     @staticmethod
     def from_dict(d: Dict[str, Any], external_src="") -> "Modificateur":
-        """
-        Reconstruit un Modificateur depuis un dict.
-        """
-        if "source" not in d.keys():
-            source = external_src
-        else:
-            source = d["source"]
+        source = d.get("source", external_src)
         return Modificateur(
-            caract=d["caract"],
-            val=d["val"],
+            caract=d.get("caract", ""),
+            val=d.get("val", 0),
             source=source,
         )
 
@@ -240,39 +234,30 @@ class Arme:
     Le catalogue des Armes est un YAML.
     """
 
-    ref: str
-    label: str
-    DM: str
-    type_attaque: str
-    type_degat: str
-    prix: int
+    ref: str = "ARME"
+    label: str = "description ARME"
+    DM: str = "1d6"
+    type_attaque: str = ""
+    type_degat: str = ""
+    prix: int = 0
     portee: int = 0
     obs: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         """Sérialise une arme vers un dict JSON-safe."""
-        return {
-            "ref": self.ref,
-            "label": self.label,
-            "DM": self.DM,
-            "type_attaque": self.type_attaque,
-            "type_degat": self.type_degat,
-            "prix": self.prix,
-            "portee": self.portee,
-            "obs": self.obs,
-        }
+        return asdict(self)
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "Arme":
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Arme":
         """Reconstruit une Arme depuis un dict."""
-        return Arme(
-            ref=d["ref"],
-            label=d["label"],
-            DM=d["DM"],
-            type_attaque=d["type_attaque"],
-            type_degat=d["type_degat"],
-            prix=d["prix"],
-            portee=d["portee"],
+        return cls(
+            ref=d.get("ref", "ARME"),
+            label=d.get("label", "description d'une arme"),
+            DM=d.get("DM", "1d6"),
+            type_attaque=d.get("type_attaque", ""),
+            type_degat=d.get("type_degat", ""),
+            prix=d.get("prix", 0),
+            portee=d.get("portee", 0),
             obs=d.get("obs", ""),
         )
 
@@ -288,10 +273,12 @@ class Armure:
     Le catalogue des Armures est un YAML.
     """
 
-    ref: str
-    label: str
-    prix: int
-    modif: Modificateurs = field(default_factory=Modificateur)
+    ref: str = "ARMURE"
+    label: str = "Description d'Armure"
+    prix: int = 0
+    modif: Modificateur = field(
+        default_factory=lambda: Modificateur(caract="DEF", val=0)
+    )
     obs: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
@@ -300,71 +287,58 @@ class Armure:
             "ref": self.ref,
             "label": self.label,
             "prix": self.prix,
-            "modif": self.modif,
+            "modif": self.modif.to_dict(),
             "obs": self.obs,
         }
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "Armure":
-        """Reconstruit une Armure depuis un dict."""
-        return Armure(
-            ref=d["ref"],
-            label=d["label"],
-            prix=d["prix"],
-            modif=d.get("modif", {}),
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Armure":
+        """Reconstruit une armure depuis un dict."""
+        return cls(
+            ref=d.get("ref", "ARMURE"),
+            label=d.get("label", "Description d'Armure"),
+            prix=d.get("prix", 0),
+            modif=Modificateur.from_dict(d.get("modif", {})),
             obs=d.get("obs", ""),
         )
 
 
 @dataclass
 class Capacite:
-    """dataclass pour les capacitées apprises par les Voies, profil ou peuple.
-    Inclut les sorts.
-
-    ref (nom normalisé), label (nom courant),
-    rang
-    description
-    modifs: un objet Modificateurs
-    magie : vrai / faux (permet de maj PM)
-    action : type action associé (A, M, L, G)
-    attaque : caract attaque associée pour les sorts
-    Le catalogue des Capacités est gérées par une base de données
-    """
-
-    ref: str
-    label: str
-    rang: int
-    description: str
-    modif: Modificateurs = field(default_factory=Modificateur)
+    ref: str = "CAPACITE"
+    label: str = "Nom de Capacité"
+    rang: int = 1
+    description: str = "Description de Capacité"
+    modifs: Modificateurs = field(
+        default_factory=lambda: Modificateurs()
+    )
     magie: bool = False
     action: str = ""
     attaque: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
-        """Sérialise une capacité vers un dict JSON-safe."""
         return {
             "ref": self.ref,
             "label": self.label,
             "rang": self.rang,
             "description": self.description,
-            "modif": self.modif,
+            "modifs": self.modifs.to_dict(),
             "magie": self.magie,
             "action": self.action,
             "attaque": self.attaque,
         }
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "Capacite":
-        """Reconstruit une Capacite depuis un dict."""
-        return Capacite(
-            ref=d["ref"],
-            label=d["label"],
-            rang=d["rang"],
-            description=d.get("description", ""),
-            modif=Modificateurs.from_dict(d.get("modif"), {}),
-            magie=d.get("magie", 0),
-            action=d.get("action", None),
-            attaque=d.get("attaque", None),
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Capacite":
+        return cls(
+            ref=d.get("ref", "CAPACITE"),
+            label=d.get("label", "Nom de Capacité"),
+            rang=d.get("rang", 1),
+            description=d.get("description", "Description de Capacité"),
+            modifs=Modificateurs.from_dict(d.get("modifs", {})),
+            magie=d.get("magie", False),
+            action=d.get("action", ""),
+            attaque=d.get("attaque", ""),
         )
 
 
@@ -542,48 +516,75 @@ class Personnage:
         self.equipement.equiper_arme(arme)
 
     def ajouter_armure(self, armure: Armure) -> None:
-        """ajouter une armure et le modificateur de DEF associé"""
-        self.equipement.equiper_armure(armure)
-        # TODO : vérifier si on n'ajoute pas plusieurs fois le modif de DEF
 
-        modif = Modificateur.from_dict(
-            armure.modif, external_src=armure.label
+        self.equipement.equiper_armure(armure)
+
+        # supprimer les anciens modifs d'armure
+        self.modificateurs.liste_mods = [
+            m
+            for m in self.modificateurs.liste_mods
+            if not m.source.startswith("ARMURE:")
+        ]
+
+        modif = Modificateur(
+            caract=armure.modif.caract,
+            val=armure.modif.val,
+            source=f"ARMURE:{armure.ref}",
         )
+
         self.modificateurs.add(modif)
 
-    def ajouter_capacite(self, skill: Capacite):
-        """ajoute une skill
-        ajoute un PM si c'est un sort
+    def ajouter_capacite(self, skill: Capacite) -> None:
+        """Ajoute une capacité au personnage.
+
+        - ajoute la capacité si elle n'est pas déjà connue
+        - ajoute un PM si c'est un sort
+        - résout les modificateurs symboliques éventuels
+        - injecte les modificateurs actifs dans le personnage
         """
-        if not self._skill_already_learned(skill):
-            self.capacites.add_skill(skill)
-            if skill.magie == 1:
-                self.spells.add_skill(skill)
-                self.ressources.PM = self.ressources.PM + 1
 
-        if skill.modif is not None:
-            # certaines valeurs de modifs se basent sur une caract
-            # cette étape permet de le calculer
-            dict_modif = self._update_modif_variable(skill.modif)
+        if self._skill_already_learned(skill):
+            return
 
-            for k, v in dict_modif.items():
-                source = " ; ".join(
-                    [skill.ref, skill.label, str(skill.rang)]
+        self.capacites.add_skill(skill)
+
+        if skill.magie:
+            self.spells.add_skill(skill)
+            self.ressources.PM += 1
+
+        if (
+            skill.modifs is not None
+            and len(skill.modifs.liste_mods) > 0
+        ):
+            resolved_mods = self._resolve_modifs_capacite(skill.modifs)
+
+            source = " ; ".join(
+                [skill.ref, skill.label, str(skill.rang)]
+            )
+
+            for m in resolved_mods.liste_mods:
+                self.modificateurs.add(
+                    Modificateur(
+                        caract=m.caract,
+                        val=m.val,
+                        source=source,
+                    )
                 )
-                modif = Modificateur(caract=k, val=v, source=source)
-                self.modificateurs.add(modif)
 
-    def compute_rollup_modif(self):
-        """une fois les modifs aggrégés on les applique"""
-
+    def compute_rollup_modif(self) -> Dict[str, int]:
+        """Agrège les modificateurs actifs par caractéristique / ressource."""
         rollup = {}
+
         for md in self.modificateurs.liste_mods:
-            if md.caract in rollup.keys():
-                rollup[md.caract] = md.val + rollup[md.caract]
-            else:
-                rollup[md.caract] = md.val
+            if not isinstance(md.val, int):
+                raise ValueError(
+                    f"Modificateur non résolu détecté : {md.caract}={md.val!r}"
+                )
+
+            rollup[md.caract] = rollup.get(md.caract, 0) + md.val
 
         self.rollup_mod = rollup
+        return rollup
 
     def _skill_already_learned(self, skill: Capacite):
         """
@@ -597,15 +598,23 @@ class Personnage:
                 fl = True
         return fl
 
-    def _update_modif_variable(self, modif_variable):
+    def _resolve_modifs_capacite(
+        self, modifs: Modificateurs
+    ) -> Modificateurs:
         """
-        remplace la valeur symbolique d'un modificateur
-        (par ex {'PV': 'FOR'}) par la valeur réelle
-        cela peut se produire pour les Capacités seulement.
+        Résout les modificateurs d'une capacité pour ce personnage.
+
+        Remplace les valeurs symboliques ("AGI", "FOR", etc.)
+        par les valeurs réelles des caractéristiques du personnage.
+
+        Retourne un nouveau conteneur, sans modifier la capacité source.
         """
-        md = modif_variable
-        for k, v in md.items():
-            if v in [
+        out = Modificateurs()
+
+        for m in modifs.liste_mods:
+            val = m.val
+
+            if isinstance(val, str) and val in {
                 "AGI",
                 "CONST",
                 "FOR",
@@ -613,10 +622,18 @@ class Personnage:
                 "CHAR",
                 "INT",
                 "VOL",
-            ]:
-                v_updated = getattr(self.caract, v)
-                md[k] = v_updated
-        return md
+            }:
+                val = getattr(self.caract, val)
+
+        out.add(
+            Modificateur(
+                caract=m.caract,
+                val=val,
+                source=m.source,
+            )
+        )
+
+        return out
 
     # --- ajouter une liste de voies manuelleemnt
     def set_skill_from_dict(
@@ -681,7 +698,7 @@ class Personnage:
             capacites=Capacites.from_dict(d["capacites"]),
             spells=Capacites.from_dict(d["spells"]),
             ressources=Ressource.from_dict(d["ressources"]),
-            mod=Modificateurs.from_dict(d["mod"]),
+            modificateurs=Modificateurs.from_dict(d["modificateurs"]),
             rollup_mod=d.get("rollup_mod", {}),
         )
 
@@ -698,68 +715,73 @@ def str_from_dataclass(obj: Any) -> str:
 # ========== Data Loaders  ==========
 
 
-def ppl_skill_from_bdd(bdd_path, peuple_id: str, voie_rang: int):
-    """crée un Objet Capacité de Peuple à partir du nom de Peuple et rang choisi
-    Args:
-        bdd_path (bdd sqlite): bdd des capacités
-        peuple_id (_type_): peuple format de réf (ex 'HUMAIN)
-        rang (_type_): rang
-
-    Returns:
-        Capacité: la capacité
-    """
-    # TODO : ajouter msg si pas trouvé
+def ppl_skill_from_bdd(
+    bdd_path, peuple_id: str, voie_rang: int
+) -> Capacite:
+    """Crée un objet Capacite de peuple à partir de la BDD."""
 
     label, description, modif, is_magic, action, attaque = (
         bdd.get_ppl_capacity_details(bdd_path, peuple_id, voie_rang)
     )
-    modif_dict = json.loads(
-        modif
-    )  # pour transormer le résultat de la requete en dict
-    if len(modif_dict) > 0:
-        caract, valeur = next(iter(modif_dict.items()))
 
-    modif = Modificateur(caract=caract, val=valeur, source="skill")
+    modif_dict = json.loads(modif) if modif else {}
+
+    mods = Modificateurs()
+    for caract, valeur in modif_dict.items():
+        mods.add(
+            Modificateur(
+                caract=caract,
+                val=valeur,
+                source=f"PEUPLE:{peuple_id}:{voie_rang}",
+            )
+        )
+
     skill = Capacite(
-        ref=peuple_id,
+        ref=f"{peuple_id}_{voie_rang}",
         label=label,
         rang=voie_rang,
         description=description,
-        modif=modif_dict,  # FIXME remplacer par un VRAI modificateur
-        magie=is_magic,
-        action=action,
-        attaque=attaque,
+        modifs=mods,
+        magie=bool(is_magic),
+        action=action or "",
+        attaque=attaque or "",
     )
+
     return skill
 
 
-def classe_skill_from_bdd(bdd_path, voie_id, voie_rang):
-    """crée un Obket Capacité de Voie à partir du nom de Peuple et rang choisi
-    Args:
-        bdd_path (bdd sqlite): bdd des capacités
-        voie_id (_type_): peuple format de réf (ex 'VOIE_DE_LAIR)
-        rang (_type_): rang
-
-    Returns:
-        Capacité: la capacité
-    """
-    # TODO : ajouter msg si pas trouvé
+def classe_skill_from_bdd(
+    bdd_path, voie_id: str, voie_rang: int
+) -> Capacite:
+    """Crée un objet Capacite de voie à partir de la BDD."""
 
     label, description, modif, is_magic, action, attaque = (
         bdd.get_cls_capacity_details(bdd_path, voie_id, voie_rang)
     )
-    if modif is not None:
-        modif = json.loads(modif)
+
+    modif_dict = json.loads(modif) if modif else {}
+
+    mods = Modificateurs()
+    for caract, valeur in modif_dict.items():
+        mods.add(
+            Modificateur(
+                caract=caract,
+                val=valeur,
+                source=f"VOIE:{voie_id}:{voie_rang}",
+            )
+        )
+
     skill = Capacite(
-        ref=voie_id,
+        ref=f"{voie_id}_{voie_rang}",
         label=label,
         rang=voie_rang,
         description=description,
-        modif=modif,
-        magie=is_magic,
-        action=action,
-        attaque=attaque,
+        modifs=mods,
+        magie=bool(is_magic),
+        action=action or "",
+        attaque=attaque or "",
     )
+
     return skill
 
 
@@ -790,5 +812,5 @@ def load_materiel(path: str, sub_set: str = "ARMES") -> Dict[str, Any]:
     for name, props in section_data.items():
         props = dict(props)
         props["ref"] = name
-        out[name] = cls_(**props)
+        out[name] = cls_.from_dict(props)
     return out

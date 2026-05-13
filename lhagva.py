@@ -2,14 +2,6 @@ import co.perso_creation as perso
 from co import bdd_voies as bdd
 from co import io_helpers as io
 
-from importlib import reload
-
-reload(bdd)
-reload(perso)
-
-# TODO IL FAUT REVOIR CPLT LA GESTION DES MODIFICATEURS ca ne marche pas j'ai désactivé
-
-
 bdd_path = bdd.DB_PATH
 ARMES = perso.load_materiel("data/lst_equipement.yml", sub_set="ARMES")
 ARMURES = perso.load_materiel(
@@ -28,7 +20,6 @@ lhagva = perso.Personnage(
     ),
 )
 
-reload(perso)
 lh_arme = ARMES["EPEE_COURBE"]
 lh_armure = ARMURES["VESTE_CUIR"]
 
@@ -48,7 +39,7 @@ sk3 = perso.classe_skill_from_bdd(
 lhagva.ajouter_capacite(sk1)
 lhagva.ajouter_capacite(sk2)
 lhagva.ajouter_capacite(sk3)
-
 lhagva.compute_rollup_modif()
+
 
 io.save_yaml(lhagva.to_dict(), "data/lhagva.yml")
