@@ -75,9 +75,13 @@ class Ressource:
         """
         Reconstruit un objet Ressource depuis un dictionnaire.
         """
+        dr = d.get("DR", (0, 0))
+        if isinstance(dr, list):
+            dr = tuple(dr)
+
         return cls(
             PV=d.get("PV", 0),
-            DR=d.get("DR", (0, 0)),
+            DR=dr,
             PM=d.get("PM", 0),
             PC=d.get("PC", 0),
             INIT=d.get("INIT", 0),
@@ -625,13 +629,13 @@ class Personnage:
             }:
                 val = getattr(self.caract, val)
 
-        out.add(
-            Modificateur(
-                caract=m.caract,
-                val=val,
-                source=m.source,
+            out.add(
+                Modificateur(
+                    caract=m.caract,
+                    val=val,
+                    source=m.source,
+                )
             )
-        )
 
         return out
 
@@ -684,23 +688,40 @@ class Personnage:
             "rollup_mod": self.rollup_mod,
         }
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "Personnage":
-        return Personnage(
-            nom=d["nom"],
-            peuple=Peuple(d["peuple"]),
-            famille=Famille(d["famille"]),
-            profil=Profil(d["profil"]),
-            niveau=d["niveau"],
-            caract=Carac.from_dict(d["caract"]),
-            equipement=Equipement.from_dict(d["equipement"]),
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "Personnage":
+        p = cls(
+            nom=d.get("nom", ""),
+            peuple=Peuple(d.get("peuple", Peuple.HUMAIN.value)),
+            famille=Famille(d.get("famille", Famille.AVENTURIER.value)),
+            profil=Profil(d.get("profil", Profil.VOLEUR.value)),
+            niveau=d.get("niveau", 1),
+            caract=Carac.from_dict(d.get("caract", {})),
+            equipement=Equipement.from_dict(d.get("equipement", {})),
             voies=d.get("voies", {}),
-            capacites=Capacites.from_dict(d["capacites"]),
-            spells=Capacites.from_dict(d["spells"]),
-            ressources=Ressource.from_dict(d["ressources"]),
-            modificateurs=Modificateurs.from_dict(d["modificateurs"]),
-            rollup_mod=d.get("rollup_mod", {}),
+            capacites=Capacites.from_dict(d.get("capacites", {})),
+            spells=Capacites.from_dict(d.get("spells", {})),
+            modificateurs=Modificateurs.from_dict(
+                d.get("modificateurs", {})
+            ),
+            # valeurs provisoires, car __post_init__ va recalculer
+            ressources=Ressource(),
+            rollup_mod={},
         )
+
+        # restaurer ensuite l'état sauvegardé
+        p.ressources = Ressource.from_dict(d.get("ressources", {}))
+
+        # soit on fait confiance au YAML...
+        # p.rollup_mod = d.get("rollup_mod", {})
+
+        # ... soit on préfère recalculer depuis les modificateurs actifs
+        if p.modificateurs.liste_mods:
+            p.rollup_mod = p.compute_rollup_modif()
+        else:
+            p.rollup_mod = d.get("rollup_mod", {})
+
+        return p
 
 
 # ========== Helpers sérialisation d'Enum ==========

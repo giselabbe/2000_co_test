@@ -8,6 +8,8 @@ from co.perso_creation import (
     Modificateurs,
     Capacite,
     Personnage,
+    Capacites,
+    Equipement,
 )
 
 from co.perso_data import Peuple, Famille, Profil
@@ -179,6 +181,25 @@ def test_dr_mystique(make_personnage):
     r = Ressource.from_personnage(p)
 
     assert r.DR[0] == 4
+
+
+def test_ressource_from_dict_dr_list_to_tuple():
+    d = {
+        "PV": 12,
+        "DR": [4, 10],
+        "PM": 1,
+        "PC": 2,
+        "INIT": 11,
+        "DEF": 11,
+        "ATK": 3,
+        "ATD": 2,
+        "ATM": 2,
+    }
+
+    r = Ressource.from_dict(d)
+
+    assert isinstance(r.DR, tuple)
+    assert r.DR == (4, 10)
 
 
 # TEST ARMES, ARMURES #
@@ -810,3 +831,261 @@ def test_personnage_compute_rollup_modif():
     assert isinstance(p.rollup_mod, dict)
     assert p.rollup_mod["DEF"] == 3
     assert p.rollup_mod["PC"] == 1
+
+
+def test_personnage_from_dict_basic():
+    d = {
+        "nom": "Lhagva",
+        "peuple": Peuple.HUMAIN.value,
+        "famille": Famille.COMBATTANT.value,
+        "profil": Profil.BARBARE.value,
+        "niveau": 1,
+        "caract": {
+            "AGI": 1,
+            "CONST": 2,
+            "FOR": 3,
+            "PER": 1,
+            "CHAR": -1,
+            "INT": 0,
+            "VOL": 1,
+        },
+        "equipement": Equipement().to_dict(),
+        "voies": {},
+        "capacites": Capacites().to_dict(),
+        "spells": Capacites().to_dict(),
+        "ressources": {
+            "PV": 12,
+            "DR": [4, 10],  # format YAML relu
+            "PM": 1,
+            "PC": 2,
+            "INIT": 11,
+            "DEF": 11,
+            "ATK": 3,
+            "ATD": 2,
+            "ATM": 2,
+        },
+        "modificateurs": Modificateurs().to_dict(),
+        "rollup_mod": {},
+    }
+
+    p = Personnage.from_dict(d)
+
+    assert p.nom == "Lhagva"
+    assert p.peuple == Peuple.HUMAIN
+    assert p.famille == Famille.COMBATTANT
+    assert p.profil == Profil.BARBARE
+    assert p.niveau == 1
+
+    assert isinstance(p.caract, Carac)
+    assert p.caract.FOR == 3
+
+    assert isinstance(p.ressources, Ressource)
+    assert p.ressources.PV == 12
+    assert isinstance(p.ressources.DR, tuple)
+    assert p.ressources.DR == (4, 10)
+
+    assert isinstance(p.equipement, Equipement)
+    assert isinstance(p.capacites, Capacites)
+    assert isinstance(p.spells, Capacites)
+    assert isinstance(p.modificateurs, Modificateurs)
+
+    assert p.rollup_mod == {}
+
+
+def test_personnage_from_dict_complete():
+    armure = Armure(
+        ref="VESTE_CUIR",
+        label="Veste en Cuir Simple",
+        prix=4,
+        modif=Modificateur("DEF", 2),
+    )
+
+    equipement = Equipement()
+    equipement.equiper_armure(armure)
+
+    mods_skill = Modificateurs()
+    mods_skill.add(Modificateur("PC", 1, "PEUPLE:HUMAIN:1"))
+
+    skill = Capacite(
+        ref="HUMAIN_1",
+        label="Diversité",
+        rang=1,
+        description="Ajoute 1 PC",
+        modifs=mods_skill,
+        magie=False,
+    )
+
+    capacites = Capacites()
+    capacites.add_skill(skill)
+
+    modifs_perso = Modificateurs()
+    modifs_perso.add(Modificateur("DEF", 2, "ARMURE:VESTE_CUIR"))
+    modifs_perso.add(Modificateur("PC", 1, "HUMAIN_1 ; Diversité ; 1"))
+
+    d = {
+        "nom": "Lhagva",
+        "peuple": Peuple.HUMAIN.value,
+        "famille": Famille.COMBATTANT.value,
+        "profil": Profil.BARBARE.value,
+        "niveau": 1,
+        "caract": Carac(
+            AGI=1, CONST=2, FOR=3, PER=1, CHAR=-1, INT=0, VOL=1
+        ).to_dict(),
+        "equipement": equipement.to_dict(),
+        "voies": {},
+        "capacites": capacites.to_dict(),
+        "spells": Capacites().to_dict(),
+        "ressources": Ressource(
+            PV=12,
+            DR=(4, 10),
+            PM=1,
+            PC=2,
+            INIT=11,
+            DEF=11,
+            ATK=3,
+            ATD=2,
+            ATM=2,
+        ).to_dict(),
+        "modificateurs": modifs_perso.to_dict(),
+        "rollup_mod": {"DEF": 999, "PC": 999},  # volontairement faux
+    }
+
+    p = Personnage.from_dict(d)
+
+    assert p.nom == "Lhagva"
+    assert p.peuple == Peuple.HUMAIN
+
+    # équipement
+    assert "VESTE_CUIR" in p.equipement.armures
+    assert isinstance(p.equipement.armures["VESTE_CUIR"], Armure)
+    assert isinstance(
+        p.equipement.armures["VESTE_CUIR"].modif, Modificateur
+    )
+
+    # capacités
+    assert "HUMAIN_1" in p.capacites.list_of_skills
+    assert isinstance(p.capacites.list_of_skills["HUMAIN_1"], Capacite)
+    assert (
+        len(p.capacites.list_of_skills["HUMAIN_1"].modifs.liste_mods)
+        == 1
+    )
+    assert (
+        p.capacites.list_of_skills["HUMAIN_1"]
+        .modifs.liste_mods[0]
+        .caract
+        == "PC"
+    )
+
+    # modifs perso
+    assert len(p.modificateurs.liste_mods) == 2
+    assert p.modificateurs.liste_mods[0].caract == "DEF"
+    assert p.modificateurs.liste_mods[1].caract == "PC"
+
+
+def test_personnage_from_dict_recomputes_rollup_mod():
+    modifs_perso = Modificateurs()
+    modifs_perso.add(Modificateur("DEF", 2, "ARMURE:VESTE_CUIR"))
+    modifs_perso.add(Modificateur("DEF", 1, "VOIE:TEST:1"))
+    modifs_perso.add(Modificateur("PC", 1, "PEUPLE:HUMAIN:1"))
+
+    d = {
+        "nom": "Lhagva",
+        "peuple": Peuple.HUMAIN.value,
+        "famille": Famille.COMBATTANT.value,
+        "profil": Profil.BARBARE.value,
+        "niveau": 1,
+        "caract": Carac().to_dict(),
+        "equipement": Equipement().to_dict(),
+        "voies": {},
+        "capacites": Capacites().to_dict(),
+        "spells": Capacites().to_dict(),
+        "ressources": Ressource().to_dict(),
+        "modificateurs": modifs_perso.to_dict(),
+        "rollup_mod": {"DEF": 999, "PC": 999},  # faux exprès
+    }
+
+    p = Personnage.from_dict(d)
+
+    assert p.rollup_mod["DEF"] == 3
+    assert p.rollup_mod["PC"] == 1
+
+
+def test_personnage_from_dict_keeps_saved_rollup_if_no_modificateurs():
+    d = {
+        "nom": "Test",
+        "peuple": Peuple.HUMAIN.value,
+        "famille": Famille.AVENTURIER.value,
+        "profil": Profil.VOLEUR.value,
+        "niveau": 1,
+        "caract": Carac().to_dict(),
+        "equipement": Equipement().to_dict(),
+        "voies": {},
+        "capacites": Capacites().to_dict(),
+        "spells": Capacites().to_dict(),
+        "ressources": Ressource().to_dict(),
+        "modificateurs": Modificateurs().to_dict(),
+        "rollup_mod": {"DEF": 42},
+    }
+
+    p = Personnage.from_dict(d)
+
+    assert p.modificateurs.liste_mods == []
+    assert p.rollup_mod == {"DEF": 42}
+
+
+def test_personnage_round_trip():
+    p1 = Personnage(
+        nom="Lhagva",
+        peuple=Peuple.HUMAIN,
+        famille=Famille.COMBATTANT,
+        profil=Profil.BARBARE,
+        niveau=1,
+        caract=Carac(
+            AGI=1, CONST=2, FOR=3, PER=1, CHAR=-1, INT=0, VOL=1
+        ),
+    )
+
+    armure = Armure(
+        ref="VESTE_CUIR",
+        label="Veste en Cuir Simple",
+        prix=4,
+        modif=Modificateur("DEF", 2),
+    )
+    p1.ajouter_armure(armure)
+
+    mods = Modificateurs()
+    mods.add(Modificateur("PC", 1, "PEUPLE:HUMAIN:1"))
+    skill = Capacite(
+        ref="HUMAIN_1",
+        label="Diversité",
+        rang=1,
+        description="Ajoute 1 PC",
+        modifs=mods,
+    )
+    p1.ajouter_capacite(skill)
+
+    p1.compute_rollup_modif()
+
+    d = p1.to_dict()
+    p2 = Personnage.from_dict(d)
+
+    assert p2.nom == p1.nom
+    assert p2.peuple == p1.peuple
+    assert p2.famille == p1.famille
+    assert p2.profil == p1.profil
+    assert p2.niveau == p1.niveau
+
+    assert p2.caract == p1.caract
+
+    assert p2.ressources.PV == p1.ressources.PV
+    assert p2.ressources.DR == p1.ressources.DR
+
+    assert len(p2.equipement.armures) == 1
+    assert "VESTE_CUIR" in p2.equipement.armures
+
+    assert "HUMAIN_1" in p2.capacites.list_of_skills
+    assert len(p2.modificateurs.liste_mods) == len(
+        p1.modificateurs.liste_mods
+    )
+
+    assert p2.rollup_mod == p1.rollup_mod

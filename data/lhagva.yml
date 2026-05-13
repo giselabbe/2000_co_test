@@ -106,9 +106,13 @@ modificateurs:
   - caract: PC
     val: 1
     source: HUMAIN_1 ; Diversité ; 1
+  - caract: INIT
+    val: 3
+    source: VOIE_DU_POURFENDEUR_1 ; Réflexes Eclair ; 1
   - caract: DEF
     val: 1
     source: VOIE_DU_POURFENDEUR_1 ; Réflexes Eclair ; 1
 rollup_mod:
   DEF: 3
   PC: 1
+  INIT: 3
